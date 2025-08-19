@@ -12,26 +12,33 @@ create_db()
 st.set_page_config(page_title="Student DBMS", page_icon="🎓", layout="wide")
 st.title("🎓 Student Database Management System")
 
-import streamlit as st
+# ---------------- Sidebar Menu ----------------
+menu = st.sidebar.radio(
+    "📚 Student DBMS Menu",
+    [
+        "➕ Add Student",
+        "📋 View / Filter Students",
+        "🔎 Search",
+        "✏️ Update",
+        "🗑️ Delete"
+    ]
+)
 
-st.sidebar.title("📚 Student DBMS Menu")
-
-if st.sidebar.button("➕ Add Student"):
+# Normalize choice
+if "Add Student" in menu:
     choice = "Add Student"
-elif st.sidebar.button("📋 View / Filter Students"):
+elif "View / Filter" in menu:
     choice = "View / Filter Students"
-elif st.sidebar.button("🔎 Search"):
+elif "Search" in menu:
     choice = "Search"
-elif st.sidebar.button("✏️ Update"):
+elif "Update" in menu:
     choice = "Update"
-elif st.sidebar.button("🗑️ Delete"):
+elif "Delete" in menu:
     choice = "Delete"
 else:
-    choice = "Add Student"  # default
+    choice = "Add Student"
 
-
-
-# Helpers
+# ---------------- Helpers ----------------
 def to_df(rows):
     return pd.DataFrame(rows, columns=[
         "Student ID", "Roll No", "Name", "Age", "Gender", "Category",
@@ -47,6 +54,7 @@ def sem_options():
 
 def is_hosteller(t): return t == "Hosteller"
 def is_day_scholar(t): return t == "Day Scholar"
+
 
 # =============== ADD STUDENT ===============
 if choice == "Add Student":
@@ -101,6 +109,7 @@ if choice == "Add Student":
             else:
                 st.error(f"❌ {msg}")
 
+
 # =============== VIEW / FILTER ===============
 elif choice == "View / Filter Students":
     st.subheader("📋 View & Filter Students")
@@ -114,8 +123,8 @@ elif choice == "View / Filter Students":
 
         with col2:
             category_filter = st.multiselect("Category", ["General", "OBC", "SC", "ST", "Other"], default=[])
-            course_filter = st.multiselect("Course", 
-                                           ["B.Tech", "M.Tech", "MBA", "B.Sc", "M.Sc", "Other"], 
+            course_filter = st.multiselect("Course",
+                                           ["B.Tech", "M.Tech", "MBA", "B.Sc", "M.Sc", "Other"],
                                            default=[])
 
         with col3:
@@ -124,28 +133,25 @@ elif choice == "View / Filter Students":
         with col4:
             sem_filter = st.multiselect("Semester", sem_options(), default=[])
 
-        # Collect all filters
         filters = {
             "type": None if type_filter == "All" else [type_filter],
             "gender": None if gender_filter == "All" else [gender_filter],
             "category": category_filter or None,
-            "course_in": course_filter or None,   # ✅ proper dropdown filter
+            "course_in": course_filter or None,
             "year_in": year_filter or None,
             "sem_in": sem_filter or None,
         }
 
-    # Fetch and display
     rows = fetch_students(filters)
     df = to_df(rows)
 
     st.write(f"Total: **{len(df)}** records")
     st.dataframe(df, use_container_width=True)
 
-
-    # Download CSV
     csv_buf = StringIO()
     df.to_csv(csv_buf, index=False)
     st.download_button("⬇️ Download CSV", data=csv_buf.getvalue(), file_name="students.csv", mime="text/csv")
+
 
 # =============== SEARCH ===============
 elif choice == "Search":
@@ -169,11 +175,11 @@ elif choice == "Search":
             else:
                 st.warning("No student found with that Roll No.")
 
+
 # =============== UPDATE ===============
 elif choice == "Update":
     st.subheader("✏️ Update Student")
 
-    # Keep selected student in session
     if "upd_student" not in st.session_state:
         st.session_state.upd_student = None
 
@@ -185,7 +191,7 @@ elif choice == "Update":
             st.error("Student not found.")
             st.session_state.upd_student = None
         else:
-            st.session_state.upd_student = row  # ✅ Store in session_state
+            st.session_state.upd_student = row
 
     if st.session_state.upd_student:
         (
@@ -254,7 +260,7 @@ elif choice == "Update":
             ok, msg = update_student(student_id, **fields)
             if ok:
                 st.success("Student updated successfully ✅")
-                st.session_state.upd_student = None  # clear after save
+                st.session_state.upd_student = None
             else:
                 st.error(f"❌ {msg}")
 
