@@ -5,15 +5,6 @@
 
 ---
 
-## 🖥️ Demo Preview  
-
-👉 *How EduTrack looks in action:*  
-
-![EduTrack Demo](assets/demo.gif)  
-*(Add your screenshots/GIF in `assets/` folder and update the path)*  
-
----
-
 ## ✨ Features
 
 - ➕ **Add Students** — Insert records with details like ID, Roll No, Name, Course, Address, Year, Semester, and Type  
