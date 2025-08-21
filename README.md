@@ -38,3 +38,10 @@ It provides a simple yet powerful interface for managing student records — inc
 
 ## 📂 Project Structure  
 
+EduTrack/
+│── app.py # Main Streamlit UI (CRUD + Filters + Export)
+│── backend.py # Database functions (CRUD operations, filters)
+│── students.db # SQLite database (auto-created)
+│── assets/ # Place screenshots / demo GIFs here
+│── README.md # Documentation
+
