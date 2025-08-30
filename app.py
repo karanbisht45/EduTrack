@@ -17,7 +17,7 @@ create_user_table()
 st.set_page_config(page_title="Student DBMS", page_icon="🎓", layout="wide")
 
 # 🔑 Initialize Cohere Client
-COHERE_API_KEY = "ZDRGnW9Jbj1a6IhwjjTqNimk4BPcxM1bOSn3Hl33"   # 👈 Replace with your API key
+COHERE_API_KEY = "YOUR_COHERE_API_KEY"   # 👈 Replace with your API key
 co = cohere.Client(COHERE_API_KEY)
 
 def generate_sql(user_query: str) -> str:
@@ -355,4 +355,5 @@ else:
                 st.error(f"SQL Error: {e}")
             finally:
                 conn.close()
+
 
