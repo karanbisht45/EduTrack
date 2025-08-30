@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from io import StringIO
+import sqlite3
+import cohere   # 👈 Using Cohere 
 
 from backend import (
     create_db, insert_student, get_student, get_student_by_roll,
@@ -14,6 +16,56 @@ create_user_table()
 
 st.set_page_config(page_title="Student DBMS", page_icon="🎓", layout="wide")
 
+# 🔑 Initialize Cohere Client
+COHERE_API_KEY = "ZDRGnW9Jbj1a6IhwjjTqNimk4BPcxM1bOSn3Hl33"   # 👈 Replace with your API key
+co = cohere.Client(COHERE_API_KEY)
+
+def generate_sql(user_query: str) -> str:
+    """Convert natural language to SQL using Cohere."""
+
+    prompt = f"""
+    You are an expert SQL assistant.
+    Convert the following natural language request into a valid **SQLite SELECT query only**
+    for the 'students' table.
+
+    ✅ Rules:
+    - Use only this schema: 
+      (student_id, roll_no, name, age, gender, category, address, course, current_year, 
+       semester, type, room_no, hostel_building, block, bus_no, route).
+    - Always start with: SELECT ... FROM students
+    - Do NOT generate INSERT, UPDATE, DELETE, CREATE, or DROP queries.
+    - Do NOT include explanations, comments, or markdown.
+    - Return ONLY the SQL query (one line or multi-line).
+    - Always match text values case-insensitively using `COLLATE NOCASE`.
+    - If the query is vague, assume the user wants *all columns*.
+    - If no condition is mentioned, return a general `SELECT * FROM students;`.
+
+    Request: {user_query}
+    """
+
+    response = co.chat(
+        message=prompt,
+        model="command-r",  # Cohere reasoning model
+        temperature=0,      # More deterministic output
+    )
+
+    sql_query = response.text.strip()
+
+    # Clean up if wrapped in code blocks
+    if sql_query.startswith("```"):
+        sql_query = (
+            sql_query.replace("```sql", "")
+            .replace("```", "")
+            .strip()
+        )
+
+    # Safety check: must always start with SELECT
+    if not sql_query.lower().startswith("select"):
+        sql_query = "SELECT * FROM students;"
+
+    return sql_query
+
+
 # ---------------- SESSION ----------------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -21,7 +73,6 @@ if "username" not in st.session_state:
     st.session_state.username = ""
 if "choice" not in st.session_state:
     st.session_state.choice = "➕ Add Student"
-
 
 # ---------------- AUTHENTICATION ----------------
 if not st.session_state.logged_in:
@@ -36,7 +87,7 @@ if not st.session_state.logged_in:
             if login_user(uname, passwd):
                 st.session_state.logged_in = True
                 st.session_state.username = uname
-                st.session_state.choice = "➕ Add Student"   # redirect
+                st.session_state.choice = "➕ Add Student"
                 st.success(f"Welcome {uname} 🎉")
                 st.rerun()
             else:
@@ -51,7 +102,7 @@ if not st.session_state.logged_in:
                 st.success(msg)
                 st.session_state.logged_in = True
                 st.session_state.username = new_user
-                st.session_state.choice = "➕ Add Student"   # redirect
+                st.session_state.choice = "➕ Add Student"
                 st.rerun()
             else:
                 st.error(msg)
@@ -68,10 +119,11 @@ else:
     # ================= MAIN MENU =================
     menu = st.sidebar.radio(
         "📚 Student DBMS Menu",
-        ["➕ Add Student", "📋 View / Filter Students", "🔎 Search", "✏️ Update", "🗑️ Delete"],
-        index=["➕ Add Student", "📋 View / Filter Students", "🔎 Search", "✏️ Update", "🗑️ Delete"].index(st.session_state.choice)
+        ["➕ Add Student", "📋 View / Filter Students", "🔎 Search", "✏️ Update", "🗑️ Delete", "🤖 AI DB Assistant"],
+        index=["➕ Add Student", "📋 View / Filter Students", "🔎 Search", "✏️ Update", "🗑️ Delete", "🤖 AI DB Assistant"].index(st.session_state.choice)
+        if st.session_state.choice in ["➕ Add Student", "📋 View / Filter Students", "🔎 Search", "✏️ Update", "🗑️ Delete", "🤖 AI DB Assistant"] else 0
     )
-    st.session_state.choice = menu  # keep in sync
+    st.session_state.choice = menu
     choice = menu
 
     st.title("🎓 Student Database Management System")
@@ -84,15 +136,10 @@ else:
             "Type", "Room No", "Hostel Building", "Block", "Bus No", "Route"
         ])
 
-    def year_options():
-        return list(range(1, 6))  # 1..5
-
-    def sem_options():
-        return list(range(1, 9))  # 1..8
-
+    def year_options(): return list(range(1, 6))
+    def sem_options(): return list(range(1, 9))
     def is_hosteller(t): return t == "Hosteller"
     def is_day_scholar(t): return t == "Day Scholar"
-
 
     # =============== ADD STUDENT ===============
     if choice == "➕ Add Student":
@@ -114,23 +161,16 @@ else:
             semester = st.selectbox("Semester", sem_options(), key="add_sem")
             type_ = st.radio("Student Type", ["Hosteller", "Day Scholar"], key="add_type")
 
-        # Conditional fields
         room_no = hostel_building = block = bus_no = route = None
-
         if is_hosteller(type_):
             colH1, colH2, colH3 = st.columns(3)
-            with colH1:
-                room_no = st.text_input("Room No")
-            with colH2:
-                hostel_building = st.text_input("Hostel Building")
-            with colH3:
-                block = st.text_input("Block")
+            with colH1: room_no = st.text_input("Room No")
+            with colH2: hostel_building = st.text_input("Hostel Building")
+            with colH3: block = st.text_input("Block")
         elif is_day_scholar(type_):
             colD1, colD2 = st.columns(2)
-            with colD1:
-                bus_no = st.text_input("Bus No")
-            with colD2:
-                route = st.text_input("Route")
+            with colD1: bus_no = st.text_input("Bus No")
+            with colD2: route = st.text_input("Route")
 
         if st.button("Add Student", type="primary"):
             required = [student_id.strip(), roll_no.strip(), name.strip(), course.strip(), address.strip()]
@@ -142,11 +182,8 @@ else:
                     gender, category, address.strip(), course.strip(), int(current_year),
                     int(semester), type_, room_no, hostel_building, block, bus_no, route
                 )
-                if ok:
-                    st.success(f"Student '{name}' added successfully ✅")
-                else:
-                    st.error(f"❌ {msg}")
-
+                if ok: st.success(f"Student '{name}' added successfully ✅")
+                else: st.error(f"❌ {msg}")
 
     # =============== VIEW / FILTER ===============
     elif choice == "📋 View / Filter Students":
@@ -154,22 +191,14 @@ else:
 
         with st.expander("Filters", expanded=True):
             col1, col2, col3, col4 = st.columns(4)
-
             with col1:
                 type_filter = st.selectbox("Type", ["All", "Hosteller", "Day Scholar"], index=0)
                 gender_filter = st.selectbox("Gender", ["All", "Male", "Female", "Others"], index=0)
-
             with col2:
                 category_filter = st.multiselect("Category", ["General", "OBC", "SC", "ST", "Other"], default=[])
-                course_filter = st.multiselect("Course",
-                                               ["B.Tech", "M.Tech", "MBA", "B.Sc", "M.Sc", "Other"],
-                                               default=[])
-
-            with col3:
-                year_filter = st.multiselect("Year", year_options(), default=[])
-
-            with col4:
-                sem_filter = st.multiselect("Semester", sem_options(), default=[])
+                course_filter = st.multiselect("Course", ["B.Tech", "M.Tech", "MBA", "B.Sc", "M.Sc", "Other"], default=[])
+            with col3: year_filter = st.multiselect("Year", year_options(), default=[])
+            with col4: sem_filter = st.multiselect("Semester", sem_options(), default=[])
 
             filters = {
                 "type": None if type_filter == "All" else [type_filter],
@@ -182,7 +211,6 @@ else:
 
         rows = fetch_students(filters)
         df = to_df(rows)
-
         st.write(f"Total: **{len(df)}** records")
         st.dataframe(df, use_container_width=True)
 
@@ -190,53 +218,37 @@ else:
         df.to_csv(csv_buf, index=False)
         st.download_button("⬇️ Download CSV", data=csv_buf.getvalue(), file_name="students.csv", mime="text/csv")
 
-
     # =============== SEARCH ===============
     elif choice == "🔎 Search":
         st.subheader("🔎 Search Student")
-
         tab1, tab2 = st.tabs(["By Student ID", "By Roll No"])
         with tab1:
             sid = st.text_input("Student ID", key="search_sid")
             if st.button("Search by ID"):
                 row = get_student(sid.strip())
-                if row:
-                    st.dataframe(to_df([row]))
-                else:
-                    st.warning("No student found with that Student ID.")
+                st.dataframe(to_df([row])) if row else st.warning("No student found.")
         with tab2:
             rno = st.text_input("Roll No", key="search_rno")
             if st.button("Search by Roll No"):
                 row = get_student_by_roll(rno.strip())
-                if row:
-                    st.dataframe(to_df([row]))
-                else:
-                    st.warning("No student found with that Roll No.")
-
+                st.dataframe(to_df([row])) if row else st.warning("No student found.")
 
     # =============== UPDATE ===============
     elif choice == "✏️ Update":
         st.subheader("✏️ Update Student")
-
-        if "upd_student" not in st.session_state:
-            st.session_state.upd_student = None
-
+        if "upd_student" not in st.session_state: st.session_state.upd_student = None
         sid = st.text_input("Enter Student ID to update", key="upd_sid")
 
         if st.button("Fetch", key="upd_fetch"):
             row = get_student(sid.strip())
-            if not row:
-                st.error("Student not found.")
-                st.session_state.upd_student = None
-            else:
-                st.session_state.upd_student = row
+            st.session_state.upd_student = row if row else None
+            if not row: st.error("Student not found.")
 
         if st.session_state.upd_student:
             (
                 student_id, roll_no, name, age, gender, category, address, course,
                 current_year, semester, type_, room_no, hostel_building, block, bus_no, route
             ) = st.session_state.upd_student
-
             colA, colB, colC = st.columns(3)
             with colA:
                 new_roll = st.text_input("Roll No (Unique)", value=roll_no, key="upd_roll")
@@ -302,22 +314,45 @@ else:
                 else:
                     st.error(f"❌ {msg}")
 
-
     # =============== DELETE ===============
     elif choice == "🗑️ Delete":
         st.subheader("🗑️ Delete Student")
         sid = st.text_input("Student ID to delete", key="del_sid")
-        col1, col2 = st.columns([1, 2])
-        with col1:
-            confirm = st.checkbox("I'm sure", key="del_confirm")
-        with col2:
-            if st.button("Delete", type="secondary", key="del_btn"):
-                if not confirm:
-                    st.warning("Please confirm deletion.")
+        confirm = st.checkbox("I'm sure", key="del_confirm")
+        if st.button("Delete", type="secondary", key="del_btn"):
+            if not confirm: st.warning("Please confirm deletion.")
+            else:
+                row = get_student(sid.strip())
+                if not row: st.error("Student ID not found.")
                 else:
-                    row = get_student(sid.strip())
-                    if not row:
-                        st.error("Student ID not found.")
-                    else:
-                        delete_student(sid.strip())
-                        st.success("Record deleted ✅")
+                    delete_student(sid.strip())
+                    st.success("Record deleted ✅")
+
+    # =============== AI DB ASSISTANT (Cohere) ===============
+    elif choice == "🤖 AI DB Assistant":
+     st.subheader("🤖 AI Database Assistant (Cohere)")
+     user_query = st.text_input("Enter your query (e.g., Show all hostellers in 2nd year):")
+
+     if st.button("Run Query", type="primary", key="ai_query_btn") and user_query:
+        sql_query = generate_sql(user_query).strip()   # remove extra spaces/newlines
+
+        # Extract only first SQL statement if Cohere generates multiple
+        sql_query = sql_query.split(";")[0].strip()
+
+        # Force query to start with SELECT only
+        if not sql_query.lower().startswith("select"):
+            st.error(f"❌ Only SELECT queries are allowed. (Got: {sql_query})")
+        else:
+            st.write("📄 Generated SQL:", sql_query)
+            conn = sqlite3.connect("students.db")
+            try:
+                df = pd.read_sql_query(sql_query, conn)
+                if not df.empty:
+                    st.dataframe(df, use_container_width=True)
+                else:
+                    st.info("No results found.")
+            except Exception as e:
+                st.error(f"SQL Error: {e}")
+            finally:
+                conn.close()
+
