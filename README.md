@@ -46,15 +46,14 @@ It provides a **fast, lightweight, and intuitive interface** for managing studen
 ---
 
 ## 📂 Project Structure  
-
+```bash
 EduTrack/
-│── app.py # Main Streamlit UI (CRUD + Filters + AI Assistant + Export)
-│── backend.py # Database functions (CRUD, filters, AI query execution)
-│── auth.py # User authentication (signup/login)
-│── students.db # SQLite database (auto-created)
-│── assets/ # Screenshots, demo GIFs, or additional assets
-│── README.md # Project documentation
-
+├── app.py # 🎨 Main Streamlit UI (CRUD + Filters + AI Assistant + Export)
+├── backend.py # ⚙️ Database functions (CRUD, filters, AI query execution)
+├── auth.py # 🔑 User authentication (signup/login)
+├── students.db # 🗄️ SQLite database (auto-created)
+└── README.md # 📘 Project documentation
+```
 ---
 
 ## 🚀 Getting Started  
@@ -91,8 +90,8 @@ You can ask queries like:
 ---
 
 ## 📝 Notes
-
+```bash
 ✔️ Only SELECT queries are allowed via the AI assistant (for safety).
 ✔️ Passwords are securely hashed with SHA256.
 ✔️ CSV export respects applied filters.
-
+```
