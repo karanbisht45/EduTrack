@@ -69,3 +69,12 @@ cd EduTrack
 pip install streamlit pandas cohere
 ```
 
+3. **Set your Cohere API Key**
+```bash
+Replace YOUR_COHERE_API_KEY in app.py or backend.py with your key.
+```
+
+4. **Run the app**
+```bash
+streamlit run app.py
+```
