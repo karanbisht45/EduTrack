@@ -78,3 +78,12 @@ Replace YOUR_COHERE_API_KEY in app.py or backend.py with your key.
 ```bash
 streamlit run app.py
 ```
+
+---
+
+## 💡 AI Assistant Examples
+You can ask queries like:
+
+-"Show all hostellers in 2nd year"
+
+-"List students taking B.Tech CSE in semester 4"
