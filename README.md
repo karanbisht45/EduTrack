@@ -80,6 +80,13 @@ streamlit run app.py
 ```
 
 ---
+Notes
+
+Only SELECT queries are allowed via AI assistant for safety.
+
+User passwords are hashed using SHA256.
+
+CSV export respects any applied filters.
 
 ## 💡 AI Assistant Examples
 You can ask queries like:
