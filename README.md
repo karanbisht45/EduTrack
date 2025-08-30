@@ -50,3 +50,16 @@ EduTrack/
 │── students.db # SQLite database (auto-created)
 │── assets/ # Screenshots, demo GIFs, or additional assets
 │── README.md # Project documentation
+
+---
+
+
+---
+
+## 🚀 Getting Started  
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/karanbisht45/EduTrack.git
+cd EduTrack
+```
