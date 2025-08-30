@@ -11,33 +11,37 @@
 
 ## 🌟 Overview  
 
-EduTrack is a **Student Database Management System (DBMS)** built with **Python + Streamlit**.  
-It provides a **fast, lightweight, and intuitive interface** for managing student records — including **CRUD operations**, **filters**, **search**, **AI-assisted queries**, and **hosteller/day-scholar support** — all backed by an **SQLite database**.
+> ⚡ EduTrack is a **Student Database Management System (DBMS)** built with **Python + Streamlit**.  
+It provides a **fast, lightweight, and intuitive interface** for managing student records — featuring **CRUD operations**, **filters**, **search**, **AI-powered queries**, and **hosteller/day-scholar support**, all powered by an **SQLite database**.
 
 ---
 
 ## ✨ Features  
 
-- ➕ **Add Students** — Add full student details including ID, Roll No, Name, Course, Address, Year, Semester, Type, and transport/hostel info.  
-- 📋 **View & Filter** — Filter students by **gender, category, year, semester, course, or type**.  
-- 🔎 **Search** — Lookup students instantly by **Student ID** or **Roll No**.  
-- ✏️ **Update Records** — Edit student details directly in inline forms.  
-- 🗑️ **Delete Students** — Safe deletion with a confirmation checkbox.  
-- 🏨 **Hosteller / Day Scholar Support** — Manage **hostel info** (Room, Building, Block) and **bus info** (Bus No, Route) dynamically.  
-- 🤖 **AI Database Assistant** — Natural language queries converted to **safe SQL SELECT queries** via **Cohere**.  
+💡 **What you can do with EduTrack:**  
+
+- ➕ **Add Students** — Save student details including ID, Roll No, Name, Course, Address, Year, Semester, Type, and transport/hostel info.  
+- 📋 **View & Filter** — Filter records by **gender, category, year, semester, course, or type**.  
+- 🔎 **Search** — Instantly find students by **Student ID** or **Roll No**.  
+- ✏️ **Update Records** — Edit student details with inline forms.  
+- 🗑️ **Delete Students** — Remove records safely with confirmation.  
+- 🏨 **Hosteller / Day Scholar Support** — Manage **hostel info** (Room, Building, Block) or **bus info** (Bus No, Route).  
+- 🤖 **AI Database Assistant** — Convert natural language into **safe SQL SELECT queries** using **Cohere**.  
 - 📂 **Export to CSV** — Download filtered student data instantly.  
-- 🔐 **User Authentication** — Signup/Login system with **hashed passwords (SHA256)**.  
-- ⚡ **Lightweight & Fast** — Runs locally, no heavy setup required.  
+- 🔐 **User Authentication** — Secure login/signup with **SHA256 hashed passwords**.  
+- ⚡ **Lightweight & Fast** — Runs locally with **zero heavy setup**.  
 
 ---
 
 ## 🛠️ Tech Stack  
 
-- **Frontend / UI:** [Streamlit](https://streamlit.io/) 🎨  
-- **Backend:** Python 🐍  
-- **Database:** SQLite 🗄️  
-- **AI Integration:** Cohere API 🤖  
-- **Libraries:** Pandas, sqlite3, hashlib, io  
+| Layer        | Technology |
+|--------------|------------|
+| 🎨 **Frontend** | [Streamlit](https://streamlit.io/) |
+| 🐍 **Backend** | Python |
+| 🗄️ **Database** | SQLite |
+| 🤖 **AI Integration** | Cohere API |
+| 📦 **Libraries** | Pandas, sqlite3, hashlib, io |
 
 ---
 
@@ -50,9 +54,6 @@ EduTrack/
 │── students.db # SQLite database (auto-created)
 │── assets/ # Screenshots, demo GIFs, or additional assets
 │── README.md # Project documentation
-
----
-
 
 ---
 
@@ -78,19 +79,20 @@ Replace YOUR_COHERE_API_KEY in app.py or backend.py with your key.
 ```bash
 streamlit run app.py
 ```
-
 ---
-Notes
-
-Only SELECT queries are allowed via AI assistant for safety.
-
-User passwords are hashed using SHA256.
-
-CSV export respects any applied filters.
 
 ## 💡 AI Assistant Examples
 You can ask queries like:
 
--"Show all hostellers in 2nd year"
+-🏨 "Show all hostellers in 2nd year"
 
--"List students taking B.Tech CSE in semester 4"
+-🎓 "List students taking B.Tech CSE in semester 4"
+
+---
+
+## 📝 Notes
+
+✔️ Only SELECT queries are allowed via the AI assistant (for safety).
+✔️ Passwords are securely hashed with SHA256.
+✔️ CSV export respects applied filters.
+
