@@ -63,3 +63,9 @@ EduTrack/
 git clone https://github.com/karanbisht45/EduTrack.git
 cd EduTrack
 ```
+
+2. **Install dependencies**
+```bash
+pip install streamlit pandas cohere
+```
+
