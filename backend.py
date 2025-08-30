@@ -1,6 +1,8 @@
 import sqlite3
 from typing import List, Tuple, Optional, Dict, Any
+import cohere   # ✅ Using Cohere 
 
+# ============================= CONFIG =============================
 DB_FILE = "students.db"
 
 SCHEMA_COLUMNS = [
@@ -9,6 +11,11 @@ SCHEMA_COLUMNS = [
     "type", "room_no", "hostel_building", "block", "bus_no", "route"
 ]
 
+# ✅ Initialize Cohere Client (replace with your API key)
+co = cohere.Client("YOUR_COHERE_API_KEY")
+
+
+# ============================= DB INIT =============================
 def create_db():
     """Create students table if not exists (no drop)."""
     with sqlite3.connect(DB_FILE) as conn:
@@ -35,6 +42,8 @@ def create_db():
         """)
         conn.commit()
 
+
+# ============================= INSERT =============================
 def insert_student(student_id: str, roll_no: str, name: str, age: int, gender: str,
                    category: str, address: str, course: str, current_year: int,
                    semester: int, type_: str, room_no: Optional[str] = None,
@@ -61,11 +70,14 @@ def insert_student(student_id: str, roll_no: str, name: str, age: int, gender: s
             return False, "Roll No already exists."
         return False, msg
 
+
+# ============================= GET =============================
 def get_student(student_id: str) -> Optional[Tuple]:
     with sqlite3.connect(DB_FILE) as conn:
         c = conn.cursor()
         c.execute("SELECT * FROM students WHERE student_id=?", (student_id,))
         return c.fetchone()
+
 
 def get_student_by_roll(roll_no: str) -> Optional[Tuple]:
     with sqlite3.connect(DB_FILE) as conn:
@@ -73,6 +85,8 @@ def get_student_by_roll(roll_no: str) -> Optional[Tuple]:
         c.execute("SELECT * FROM students WHERE roll_no=?", (roll_no,))
         return c.fetchone()
 
+
+# ============================= UPDATE =============================
 def update_student(student_id: str, **kwargs) -> Tuple[bool, str]:
     """Update student fields, return success flag and message."""
     if not kwargs:
@@ -96,12 +110,16 @@ def update_student(student_id: str, **kwargs) -> Tuple[bool, str]:
             return False, "Roll No already exists."
         return False, msg
 
+
+# ============================= DELETE =============================
 def delete_student(student_id: str) -> None:
     with sqlite3.connect(DB_FILE) as conn:
         c = conn.cursor()
         c.execute("DELETE FROM students WHERE student_id=?", (student_id,))
         conn.commit()
 
+
+# ============================= FETCH =============================
 def fetch_students(filters: Optional[Dict[str, Any]] = None) -> List[Tuple]:
     """
     Fetch students with optional filters.
@@ -150,8 +168,52 @@ def fetch_students(filters: Optional[Dict[str, Any]] = None) -> List[Tuple]:
         c.execute(query, tuple(params))
         return c.fetchall()
 
+
+# ============================= RAW ALL =============================
 def all_rows() -> List[Tuple]:
     with sqlite3.connect(DB_FILE) as conn:
         c = conn.cursor()
         c.execute("SELECT * FROM students")
         return c.fetchall()
+
+
+# ============================= ADMIN AI CHATBOT =============================
+def admin_chatbot_query(query: str) -> str:
+    """
+    AI-powered chatbot for admin queries using Cohere.
+    Converts plain English to SELECT SQL and executes safely.
+    """
+    try:
+        prompt = f"""
+        You are a SQL expert.
+        Convert the following request into a valid SQLite SELECT query only
+        for the 'students' table.
+        Table columns: {", ".join(SCHEMA_COLUMNS)}.
+        Do not generate INSERT, UPDATE, DELETE, or DROP queries.
+        Request: {query}
+        """
+
+        response = co.generate(
+            model="command-r-plus",  # Cohere model
+            prompt=prompt,
+            max_tokens=150,
+            temperature=0
+        )
+
+        sql_query = response.generations[0].text.strip()
+
+        if not sql_query.lower().startswith("select"):
+            return "❌ Only SELECT queries are allowed for safety."
+
+        conn = sqlite3.connect(DB_FILE)
+        c = conn.cursor()
+        c.execute(sql_query)
+        rows = c.fetchall()
+        conn.close()
+
+        if not rows:
+            return "No results found."
+        return str(rows)
+
+    except Exception as e:
+        return f"AI/DB Error: {e}"
