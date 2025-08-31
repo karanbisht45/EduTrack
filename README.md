@@ -26,7 +26,8 @@ It provides a **fast, lightweight, and intuitive interface** for managing studen
 - ✏️ **Update Records** — Edit student details with inline forms.  
 - 🗑️ **Delete Students** — Remove records safely with confirmation.  
 - 🏨 **Hosteller / Day Scholar Support** — Manage **hostel info** (Room, Building, Block) or **bus info** (Bus No, Route).  
-- 🤖 **AI Database Assistant** — Convert natural language into **safe SQL SELECT queries** using **Cohere**.  
+- 🤖 **AI Database Assistant** — Convert natural language into **safe SQL SELECT queries** using **Cohere**.
+- 📈 **AI Performance Predictor** — Predicts and analyzes student performance trends using ML models. 
 - 📂 **Export to CSV** — Download filtered student data instantly.  
 - 🔐 **User Authentication** — Secure login/signup with **SHA256 hashed passwords**.  
 - ⚡ **Lightweight & Fast** — Runs locally with **zero heavy setup**.  
