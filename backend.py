@@ -8,13 +8,15 @@ DB_FILE = "students.db"
 SCHEMA_COLUMNS = [
     "student_id", "roll_no", "name", "age", "gender", "category",
     "address", "course", "current_year", "semester",
-    "type", "room_no", "hostel_building", "block", "bus_no", "route"
+    "type", "room_no", "hostel_building", "block", "bus_no", "route",
+    "attendance"  # ✅ Added attendance
 ]
 
 # ✅ Initialize Cohere Client (replace with your API key)
-co = cohere.Client("YOUR_COHERE_API_KEY")
+co = cohere.Client("ZDRGnW9Jbj1a6IhwjjTqNimk4BPcxM1bOSn3Hl33")
 
 
+# ============================= DB INIT =============================
 # ============================= DB INIT =============================
 def create_db():
     """Create students table if not exists (no drop)."""
@@ -37,9 +39,19 @@ def create_db():
                 hostel_building TEXT,     -- hosteller only
                 block TEXT,               -- hosteller only
                 bus_no TEXT,              -- day scholar only
-                route TEXT                -- day scholar only
+                route TEXT,               -- day scholar only
+                attendance INTEGER DEFAULT 80  -- ✅ Added attendance
             )
         """)
+        conn.commit()
+
+    # ✅ Ensure 'attendance' column exists for older DBs
+    with sqlite3.connect(DB_FILE) as conn:
+        c = conn.cursor()
+        c.execute("PRAGMA table_info(students)")
+        columns = [col[1] for col in c.fetchall()]
+        if "attendance" not in columns:
+            c.execute("ALTER TABLE students ADD COLUMN attendance INTEGER DEFAULT 80")
         conn.commit()
 
 
@@ -48,7 +60,8 @@ def insert_student(student_id: str, roll_no: str, name: str, age: int, gender: s
                    category: str, address: str, course: str, current_year: int,
                    semester: int, type_: str, room_no: Optional[str] = None,
                    hostel_building: Optional[str] = None, block: Optional[str] = None,
-                   bus_no: Optional[str] = None, route: Optional[str] = None) -> Tuple[bool, str]:
+                   bus_no: Optional[str] = None, route: Optional[str] = None,
+                   attendance: int = 80) -> Tuple[bool, str]:
     """Insert student, return success flag and message."""
     try:
         with sqlite3.connect(DB_FILE) as conn:
@@ -56,10 +69,11 @@ def insert_student(student_id: str, roll_no: str, name: str, age: int, gender: s
             c.execute("""
                 INSERT INTO students (
                     student_id, roll_no, name, age, gender, category, address, course, current_year, semester,
-                    type, room_no, hostel_building, block, bus_no, route
-                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    type, room_no, hostel_building, block, bus_no, route, attendance
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """, (student_id, roll_no, name, age, gender, category, address, course,
-                  current_year, semester, type_, room_no, hostel_building, block, bus_no, route))
+                  current_year, semester, type_, room_no, hostel_building, block, bus_no, route,
+                  attendance))
             conn.commit()
         return True, "ok"
     except sqlite3.IntegrityError as e:
@@ -217,3 +231,11 @@ def admin_chatbot_query(query: str) -> str:
 
     except Exception as e:
         return f"AI/DB Error: {e}"
+
+
+# ============================= ATTENDANCE RISK PREDICTION =============================
+def predict_risk(attendance: int) -> str:
+    """AI-based student risk prediction based on attendance."""
+    if attendance < 75:
+        return "❌ At Risk (Low Attendance)"
+    return "✅ Safe (Good Attendance)"
