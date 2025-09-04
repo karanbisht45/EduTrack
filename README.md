@@ -1,4 +1,4 @@
-# 🎓 EduTrack — Student Database Management System (DBMS)
+# 🎓 InsightED AI
 
 <p align="center">
   <img src="https://img.shields.io/badge/Made%20with-Python-blue?logo=python" alt="Python">
