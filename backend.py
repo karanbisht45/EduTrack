@@ -13,7 +13,7 @@ SCHEMA_COLUMNS = [
 ]
 
 # ✅ Initialize Cohere Client (replace with your API key)
-co = cohere.Client("ZDRGnW9Jbj1a6IhwjjTqNimk4BPcxM1bOSn3Hl33")
+co = cohere.Client("your_api_key")
 
 
 # ============================= DB INIT =============================
@@ -239,3 +239,4 @@ def predict_risk(attendance: int) -> str:
     if attendance < 75:
         return "❌ At Risk (Low Attendance)"
     return "✅ Safe (Good Attendance)"
+
