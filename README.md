@@ -61,8 +61,8 @@ EduTrack/
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/karanbisht45/EduTrack.git
-cd EduTrack
+git clone https://github.com/karanbisht45/InsightED-AI.git
+cd InsightED-AI
 ```
 
 2. **Install dependencies**
