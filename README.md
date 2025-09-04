@@ -11,8 +11,8 @@
 
 ## 🌟 Overview  
 
-> ⚡ EduTrack is a **Student Database Management System (DBMS)** built with **Python + Streamlit**.  
-It provides a **fast, lightweight, and intuitive interface** for managing student records — featuring **CRUD operations**, **filters**, **search**, **AI-powered queries**, and **hosteller/day-scholar support**, all powered by an **SQLite database**.
+> ⚡ **InsightED AI** is a next-gen **Student Database Management System (DBMS)** powered by **AI + Streamlit**.  
+It provides a **fast, lightweight, and intelligent interface** for managing student records — featuring **CRUD operations**, **filters**, **search**, **AI-powered SQL queries**, **performance prediction**, and **hosteller/day-scholar support**, all built on an **SQLite database**.
 
 ---
 
