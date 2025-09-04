@@ -18,7 +18,7 @@ It provides a **fast, lightweight, and intuitive interface** for managing studen
 
 ## ✨ Features  
 
-💡 **What you can do with EduTrack:**  
+💡 **What you can do with InsightED AI:** 
 
 - ➕ **Add Students** — Save student details including ID, Roll No, Name, Course, Address, Year, Semester, Type, and transport/hostel info.  
 - 📋 **View & Filter** — Filter records by **gender, category, year, semester, course, or type**.  
