@@ -18,7 +18,7 @@ create_user_table()
 st.set_page_config(page_title="Student DBMS", page_icon="🎓", layout="wide")
 
 # ---------------- COHERE AI ----------------
-COHERE_API_KEY = "ZDRGnW9Jbj1a6IhwjjTqNimk4BPcxM1bOSn3Hl33"
+COHERE_API_KEY = "YOUR_API_KEY"
 co = cohere.Client(COHERE_API_KEY)
 
 def generate_sql(user_query: str) -> str:
@@ -366,3 +366,4 @@ else:
                 st.markdown(f"**Risk Status:** {risk_status}")
                 st.subheader("📈 Attendance Distribution")
                 plot_attendance_distribution()
+
