@@ -90,6 +90,14 @@ You can ask queries like:
 
 ---
 
+## 📊 Student Performance Prediction 
+What it does:
+
+- 🎯 Identifies **at-risk students** early and suggests possible interventions.  
+- 📊 Provides **visual insights** with charts and metrics for better decision-making.
+
+---
+
 ## 📝 Notes
 ```bash
 ✔️ Only SELECT queries are allowed via the AI assistant (for safety).
